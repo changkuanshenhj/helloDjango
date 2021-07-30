@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-from django.db.models import Count, Sum, Max, Min, Avg
+from django.db.models import Count, Sum, Max, Min, Avg, F, Q
 
 from mainapp.models import UserEntity, FruitEntity, StoreEntity
 
@@ -63,7 +63,7 @@ def update_user(request):
         user = UserEntity.objects.get(pk=int(id))
         name = request.GET.get('name', None)
         phone = request.GET.get('phone', None)
-        if any((name, phone)): # name或 phone 任意一个存在即可
+        if any((name, phone)):  # name或 phone 任意一个存在即可
             if name:
                 user.name = name
 
@@ -119,7 +119,7 @@ def find_store(request):
     # 查询参数：year
     queryset = StoreEntity.objects.filter(create_time__year=2021).oder_by('id', 'city')  # oder_by('-id')
     first_store = queryset.first()  # 模型类的实例对象
-    # first()/last()/count()/exists()=>bool/order_by()
+    # first()/get()/last()/count()/exists()=>bool/order_by()
     # values()==>①如果api接口，即返回json数据时，用此方法。(②还是QuerySet类对象)③每一条数据就是一个字典对象
     stores = queryset.all()
     return render(request, "store/list.html", locals())
@@ -150,4 +150,20 @@ def count_fruit(request):
                                            min=Min('price'),
                                            avg=Avg('price'),
                                            sum=Sum('price'))
-    return JsonResponse(result)
+    # 全场水果打8.8折扣
+    FruitEntity.objects.update(price=F('price')*0.88)
+    fruits = FruitEntity.objects.values()
+    fruits_list = []
+    for fruit in fruits:
+        fruits_list.append(fruit)
+
+    # 查询价格低于50的，或者高于100的，或者源产地是北京且名字中包含"果"字
+    fruits2 = FruitEntity.objects.filter(Q(price__lte=50) |
+                                         Q(price_gte=100) |
+                                         Q(Q(source='北京') & Q(name__contains="果"))).values()
+
+    return JsonResponse({
+        'count': result,
+        'fruits': fruits_list,
+        'multi_query': [fruit for fruit in fruits2]
+    })
