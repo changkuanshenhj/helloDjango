@@ -91,8 +91,7 @@ class FruitEntity(models.Model):
                                  related_name='fruits',
                                  to_field='id',  # to_field表示是与对方表的谁建立关系
                                  on_delete=models.CASCADE,  # 是否可以进行级联删除
-                                 blank=True,
-                                 null=True)
+                                 blank=True)
     # 默认情况下，反向引用的名称是当前类的名称（小写）_set
     # 可以通过related_name来指定
     # db_table='t_collect'使用第三张表建立fruit和user的多对多关系
@@ -100,16 +99,14 @@ class FruitEntity(models.Model):
                                    db_table='t_collect',
                                    related_name='fruits',
                                    verbose_name='收藏用户列表',
-                                   blank=True,
-                                   null=True)
+                                   blank=True)
     # 这里使用字符串"TagEntity",是因为TagEntity模型类在当前模型的后面进行定义的
     # 也就是在当前代码的下方
     tags = models.ManyToManyField('TagEntity',
                                   db_table='t_fruit_tags',
                                   related_name='fruits',
                                   verbose_name='所有标签',
-                                  blank=True,
-                                  null=True)
+                                  blank=True)
 
     def __str__(self):
         return self.name
