@@ -24,6 +24,43 @@ class UserEntity(models.Model):  # 客户的用户表
         verbose_name_plural = verbose_name
 
 
+class RealProfile(models.Model):
+    # 声明一对一的关联关系（与对应主键自动绑定）
+    user = models.OneToOneField(UserEntity,
+                                verbose_name='账号',
+                                on_delete=models.CASCADE)  # 删除级联操作
+    real_name = models.CharField(max_length=20, verbose_name='真实姓名')
+    number = models.CharField(max_length=30, verbose_name='证件号')
+    real_type = models.IntegerField(verbose_name='证件类型', choices=((0, '身份证'),
+                                                                  (1, '护照'),
+                                                                  (2, '驾驶证')))
+    image1 = models.ImageField(verbose_name='正面照', upload_to='user/real')
+    image2 = models.ImageField(verbose_name='反面照', upload_to='user/real')
+
+    class Meta:
+        db_table = 't_user_profile'
+        verbose_name = verbose_name_plural = '实名认证表'
+
+    def __str__(self):
+        return self.real_name
+
+
+class CartEntity(models.Model):
+    class Meta:
+        db_table = 't_cart'
+        verbose_name = verbose_name_plural = '购物车表'
+
+    user = models.OneToOneField(UserEntity,
+                                on_delete=models.CASCADE,
+                                verbose_name='账号')
+    no = models.CharField(primary_key=True,
+                          max_length=10,
+                          verbose_name='购物车编号')
+
+    def __str__(self):
+        return self.no
+
+
 # 水果分类模型
 class CateTypeEntity(models.Model):
     name = models.CharField(max_length=20, verbose_name='分类名')
@@ -48,16 +85,81 @@ class FruitEntity(models.Model):
                             verbose_name='水果名')
     price = models.FloatField(verbose_name='价格')
     source = models.CharField(max_length=30, verbose_name='源产地')
+
+    # 建立多对一的关联关系
     category = models.ForeignKey(CateTypeEntity,
-                                 on_delete=models.CASCADE)  # 是否可以进行级联删除
+                                 related_name='fruits',
+                                 to_field='id',  # to_field表示是与对方表的谁建立关系
+                                 on_delete=models.CASCADE,  # 是否可以进行级联删除
+                                 blank=True,
+                                 null=True)
+    # 默认情况下，反向引用的名称是当前类的名称（小写）_set
+    # 可以通过related_name来指定
+    # db_table='t_collect'使用第三张表建立fruit和user的多对多关系
+    users = models.ManyToManyField(UserEntity,
+                                   db_table='t_collect',
+                                   related_name='fruits',
+                                   verbose_name='收藏用户列表',
+                                   blank=True,
+                                   null=True)
+    # 这里使用字符串"TagEntity",是因为TagEntity模型类在当前模型的后面进行定义的
+    # 也就是在当前代码的下方
+    tags = models.ManyToManyField('TagEntity',
+                                  db_table='t_fruit_tags',
+                                  related_name='fruits',
+                                  verbose_name='所有标签',
+                                  blank=True,
+                                  null=True)
 
     def __str__(self):
-        return self.name+"-"+self.source
+        return self.name
 
     class Meta:
         db_table = 't_fruit'
         verbose_name = '水果表'
         verbose_name_plural = verbose_name
+
+
+class TagEntity(models.Model):
+    name = models.CharField(max_length=50,
+                            unique=True,
+                            verbose_name='标签名')
+    order_num = models.IntegerField(default=1,
+                                    verbose_name='序号')
+
+    class Meta:
+        db_table = 't_tag'
+        verbose_name_plural = verbose_name = '标签表'
+        ordering = ['-order_num']
+
+    def __str__(self):
+        return self.name
+
+
+# 声明水果商品与购物车的关系表
+class FruitCartEntity(models.Model):
+    # 自动关联主键
+    cart = models.ForeignKey(CartEntity, on_delete=models.CASCADE, verbose_name='购物车')
+    fruit = models.ForeignKey(FruitEntity,
+                              on_delete=models.CASCADE, verbose_name='水果名')
+
+    cnt = models.IntegerField(verbose_name='数量', default=1)
+
+    class Meta:
+        db_table = 't_fruit_cart'
+        verbose_name_plural = verbose_name = '购物车详情表'
+
+    @property
+    def price1(self):
+        return self.fruit.price  # 从获取主的对象属性
+
+    @property
+    def price(self):
+        # 属性方法在后台显示时没有verbose_name,如何解决？
+        return round(self.cnt*self.fruit.price, 2)
+
+    def __str__(self):
+        return self.fruit.name + ':' + self.cart.no
 
 
 class StoreEntity(models.Model):
