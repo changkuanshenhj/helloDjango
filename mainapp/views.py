@@ -38,6 +38,9 @@ def user_list3(request):
         'name': 'cxk',
         'money': 20000
     }
+    names = ['ck', 'cxk', 'shj']
+    info = '<h3>用户的个人简要</h3><p>我的家乡在平遥</p>'
+    mes = "hhhhhaaaaahhhh"
     # return render(request, 'user/list.html', locals())
 
     # # 加载模板

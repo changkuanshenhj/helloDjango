@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>主页</title>
+    {% include 'base_css.html' %}
+    <style>
+        .even{
+            background-color: lightgoldenrodyellow;
+        }
+    </style>
 </head>
 <body>
 <h3>{{ msg }}</h3>
@@ -34,5 +40,54 @@
     {% endfor %}
 
 </ul>
+<table class="table table-bordered table-responsive table-hover">
+    <thead>
+        <th>ID</th>
+        <th>账号</th>
+        <th>真实姓名</th>
+        <th>手机号</th>
+    </thead>
+    <tbody>
+    {% if users %}
+        {% for user in users %}
+            {#        轮询的方式选择后面的字符串#}
+{#            <tr class="{% cycle "even" "" %}">#}
+            <tr {% ifequal forloop.counter|divisibleby:2 0 %} class="even" {% endifequal %}>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.realprofile.real_name }}</td>
+                <td>{{ user.phone }}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="4">无数据</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+<select>
+    {% for name in names %}
+        <option>{{ name }}</option>
+        {% empty %}
+        <option>空</option>
+    {% endfor %}
+
+</select>
+{# 单行注释 #}
+{% comment %}
+    这里是多行注释
+{% endcomment %}
+
+{#表示显示源码，off的表示渲染后的效果#}
+{% autoescape on %}
+    <pre>
+        {{ info }}
+    </pre>
+{% endautoescape %}
+<p>
+    {{ mes | cut:"h"}}
+</p>
+{% include 'base_js.html' %}
 </body>
 </html>
