@@ -1,10 +1,13 @@
+import os
 import random
+from datetime import datetime
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.db.models import Count, Sum, Max, Min, Avg, F, Q
 from django.template import loader
 
+from helloDjango import settings
 from mainapp.models import UserEntity, FruitEntity, StoreEntity
 
 
@@ -41,6 +44,15 @@ def user_list3(request):
     names = ['ck', 'cxk', 'shj']
     info = '<h3>用户的个人简要</h3><p>我的家乡在平遥</p>'
     mes = "hhhhhaaaaahhhh"
+    now = datetime.now()
+
+    file_dir = os.path.join(settings.BASE_DIR, 'mainapp/')
+    files = {file_name: os.stat(file_dir + file_name)
+             for file_name in os.listdir(file_dir) if os.path.isfile(file_dir + file_name)}
+
+    price = 19.1356
+
+    img_html = "<img width=200 height=200 src='/media/store/ck.jpg'>"
     # return render(request, 'user/list.html', locals())
 
     # # 加载模板

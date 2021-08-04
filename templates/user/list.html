@@ -10,7 +10,7 @@
         }
     </style>
 </head>
-<body>
+<body class="container">
 <h3>{{ msg }}</h3>
 <p style="color: green">
     第三个用户名:{{ users.2.name }}
@@ -87,6 +87,29 @@
 {% endautoescape %}
 <p>
     {{ mes | cut:"h"}}
+</p>
+<p>
+    {{ now }}
+</p>
+<p>
+    {{ now|date:"Y-m-d H:i:s A" }}
+</p>
+{% for path, f_stat in files.items %}
+    <p>
+        {{ path }}  文件大小为 {{ f_stat.st_size|filesizeformat }}
+    </p>
+{% endfor %}
+<p>
+    {{ price|floatformat }}
+</p>
+<p>
+    {{ img_html }}
+</p>
+<p>
+    {{ img_html|ellipse:2 }}
+</p>
+<p>
+    {{ img_html|safe }}
 </p>
 {% include 'base_js.html' %}
 </body>
