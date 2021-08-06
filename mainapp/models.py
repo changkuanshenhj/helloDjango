@@ -1,8 +1,19 @@
 import uuid
 
+from django.contrib.auth.hashers import make_password
 from django.db import models
 
 # Create your models here.
+
+
+class UserManager(models.Manager):
+    def update(self, **kwargs):
+        # 重写update方法
+        password = kwargs.get('password', None)
+        if password and len(password) < 50:
+            print('我进update方法了')
+            kwargs['password'] = make_password(password)
+        super().update(**kwargs)
 
 
 class UserEntity(models.Model):  # 客户的用户表
@@ -12,6 +23,18 @@ class UserEntity(models.Model):  # 客户的用户表
     phone = models.CharField(max_length=11, verbose_name='手机号',
                              null=True,  # 数据表的字段可以是null值
                              blank=True)  # 表示此项在站点的表单字段值可以不填写（为空）
+    password = models.CharField(max_length=100, verbose_name='口令', blank=True, null=True)
+
+    objects = UserManager()   # 重写manager的update方法
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        # 通过后台管理进行的用户密码更新都今save这里，而不经update
+        if len(self.password) < 50:
+            # 明文转密文
+            self.password = make_password(self.password)
+
+        super().save()
 
     def __str__(self):
         return self.name
