@@ -65,7 +65,7 @@ def user_list3(request):
     # })
 
     # 此处的locals把request也纳入里面了
-    html = loader.render_to_string('user/list.html', locals())
+    html = loader.render_to_string('list.html', locals())
     return HttpResponse(html, status=200)  # 增加响应头？？
 
 
