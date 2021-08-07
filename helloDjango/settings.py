@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 's*u8mtgf^c@i7+@0rafo!yq&rnnpyj(rn!&pce5j^5vzv&e0$7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']  # 当前WEB服务绑定的ip是任意的
 
