@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -19,8 +19,10 @@ def search(request, phone):
     return HttpResponse('hi,phone: %s ' % phone)
 
 
-def query(request):
+def query(request: HttpRequest):
+    print(type(request.GET), request.GET)
     # 查询参数中code
+    print(request.GET.code)
     # (1:按城市和订单号num查询，2:按手机号phone查询)
     # url = reverse('order:search', args=('15981394125', ))
     # return redirect(url)
